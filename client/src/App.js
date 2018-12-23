@@ -8,9 +8,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    axios.get('/api')
+    axios.get('/api/users')
       .then(res => {
-        const persons = res.data[0].name;
+        const persons = res.data[0].nickName;
         this.setState({ persons });
         console.log(persons);
       })

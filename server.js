@@ -1,35 +1,30 @@
 const express = require('express');
+const path = require("path");
+
+// Sets up Express App
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const characters = [
-  {
-    routeName: "yoda",
-    name: "Yoda",
-    role: "Jedi Master",
-    age: 900,
-    forcePoints: 2000
-  },
-  {
-    routeName: "darthmaul",
-    name: "Darth Maul",
-    role: "Sith Lord",
-    age: 200,
-    forcePoints: 1200
-  },
-  {
-    routeName: "obiwankenobi",
-    name: "Obi Wan Kenobi",
-    role: "Jedi Master",
-    age: 55,
-    forcePoints: 1350
-  }
-];
+// Require models for syncing
+const db = require('./models')
 
+// Sets up the Express app to handle data parsing
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
+// Static directory
+app.use(express.static("public"));
 
-app.listen(PORT, () => console.log(`Listening in on port ${PORT}`));
+// Routes
+require("./routes/api-routes.js")(app);
+require("./routes/html-routes.js")(app);
 
-app.get('/api', (req, res) => {
-  return res.json(characters);
+// Sync sequelize models and start Express App
+db.sequelize.sync({ force: true }).then(function() {
+  require(path.join(__dirname, "./seeders/seeds.js"))(db);
+  app.listen(PORT, function() {
+    console.log(`App listening on PORT ${PORT}`);
+  });
 });
+
+module.exports = app;
